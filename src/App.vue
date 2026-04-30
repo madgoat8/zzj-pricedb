@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { NMessageProvider, NDialogProvider, NText } from "naive-ui";
-import { invoke } from "@tauri-apps/api/core";
+import { NMessageProvider, NDialogProvider } from "naive-ui";
 import CategorySidebar from "./components/CategorySidebar.vue";
 import PriceTable from "./components/PriceTable.vue";
 import CategoryModal from "./components/CategoryModal.vue";
@@ -17,11 +16,8 @@ const showPriceFormModal = ref(false);
 const editingPrice = ref<any>(null);
 const refreshKey = ref(0);
 
-const dbPath = ref("");
-
 async function initDb() {
-  dbPath.value = await invoke<string>("db_path");
-  db.value = await Database.load(`sqlite:${dbPath.value}`);
+  db.value = await Database.load("sqlite:app.db");
   await loadCategories();
   dbReady.value = true;
 }
@@ -85,9 +81,6 @@ onMounted(initDb);
           @update:selected-id="onCategoryChange"
           @manage="showCategoryModal = true"
         />
-        <n-text v-if="dbPath" depth="3" style="font-size: 11px; padding-top: 8px; word-break: break-all;">
-          {{ dbPath }}
-        </n-text>
       </aside>
       <main class="main-content">
         <!-- Skeleton while db loads -->

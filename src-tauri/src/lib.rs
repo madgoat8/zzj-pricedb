@@ -1,28 +1,8 @@
 mod commands;
 
-use std::env;
 use tauri_plugin_sql::{Migration, MigrationKind};
 
-fn get_db_path() -> String {
-    if cfg!(debug_assertions) {
-        // Dev: project root/app.db (not in src-tauri/ to avoid rebuild loop)
-        let manifest_dir = env!("CARGO_MANIFEST_DIR");
-        format!("{}/../app.db", manifest_dir)
-    } else {
-        // Production: next to the exe (portable)
-        env::current_exe()
-            .ok()
-            .and_then(|p| p.parent().map(|p| p.to_path_buf()))
-            .unwrap_or_default()
-            .join("app.db")
-            .to_string_lossy()
-            .to_string()
-    }
-}
-
 pub fn run() {
-    let db_url = format!("sqlite:{}", get_db_path());
-
     let migrations = vec![
         Migration {
             version: 1,
@@ -55,14 +35,13 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(
             tauri_plugin_sql::Builder::default()
-                .add_migrations(&db_url, migrations)
+                .add_migrations("sqlite:app.db", migrations)
                 .build(),
         )
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             commands::import_excel,
             commands::export_excel,
-            commands::db_path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

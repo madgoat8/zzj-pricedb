@@ -1,6 +1,5 @@
 use calamine::{open_workbook, Reader, Xlsx};
 use rust_xlsxwriter::Workbook;
-use std::env;
 use std::fs::File;
 use std::io::BufReader;
 
@@ -62,20 +61,4 @@ pub fn export_excel(path: String, data: Vec<Vec<String>>) -> Result<(), String> 
 
     workbook.save(&path).map_err(|e| e.to_string())?;
     Ok(())
-}
-
-#[tauri::command]
-pub fn db_path() -> String {
-    if cfg!(debug_assertions) {
-        let manifest_dir = env!("CARGO_MANIFEST_DIR");
-        format!("{}/../app.db", manifest_dir)
-    } else {
-        env::current_exe()
-            .ok()
-            .and_then(|p| p.parent().map(|p| p.to_path_buf()))
-            .unwrap_or_default()
-            .join("app.db")
-            .to_string_lossy()
-            .to_string()
-    }
 }
