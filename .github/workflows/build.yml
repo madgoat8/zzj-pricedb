@@ -35,6 +35,24 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: PriceDB v__VERSION__
-          releaseBody: "下载 PriceDB.exe 即可使用（绿色版，解压即运行）"
+          releaseBody: |
+            ## 下载
+            - **PriceDB.zip** — 绿色版，解压即运行
+            - **PriceDB_x64-setup.exe** — NSIS 安装包
           releaseDraft: true
           prerelease: false
+
+      - name: Create portable zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path src-tauri/target/release/price-db.exe -DestinationPath PriceDB.zip
+
+      - name: Upload portable zip to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$tag" ]; then
+            gh release upload "$tag" PriceDB.zip --clobber
+          fi
