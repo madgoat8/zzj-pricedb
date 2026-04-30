@@ -11,10 +11,10 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; height: 100%;">
+  <div style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden;">
     <div style="font-size: 16px; font-weight: bold; padding: 8px 0;">分类列表</div>
 
-    <div style="flex: 1; overflow-y: auto;">
+    <div style="flex: 1; overflow-y: auto; min-height: 0;">
       <div
         :style="{
           padding: '8px 12px',

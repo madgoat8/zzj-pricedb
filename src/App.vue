@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { NMessageProvider, NDialogProvider } from "naive-ui";
+import { NMessageProvider, NDialogProvider, NText } from "naive-ui";
+import { invoke } from "@tauri-apps/api/core";
 import CategorySidebar from "./components/CategorySidebar.vue";
 import PriceTable from "./components/PriceTable.vue";
 import CategoryModal from "./components/CategoryModal.vue";
@@ -16,8 +17,11 @@ const showPriceFormModal = ref(false);
 const editingPrice = ref<any>(null);
 const refreshKey = ref(0);
 
+const dbPath = ref("");
+
 async function initDb() {
-  db.value = await Database.load("sqlite:app.db");
+  dbPath.value = await invoke<string>("db_path");
+  db.value = await Database.load(`sqlite:${dbPath.value}`);
   await loadCategories();
   dbReady.value = true;
 }
@@ -74,13 +78,17 @@ onMounted(initDb);
             animation: 'pulse 1.5s ease-in-out infinite', animationDelay: `${i * 0.05}s`,
           }" />
         </div>
-        <CategorySidebar
-          v-else
-          :categories="categories"
-          :selected-id="selectedCategoryId"
-          @update:selected-id="onCategoryChange"
-          @manage="showCategoryModal = true"
-        />
+        <template v-else>
+          <CategorySidebar
+            :categories="categories"
+            :selected-id="selectedCategoryId"
+            @update:selected-id="onCategoryChange"
+            @manage="showCategoryModal = true"
+          />
+          <n-text depth="3" style="font-size: 11px; padding-top: 8px; word-break: break-all; flex-shrink: 0;">
+            {{ dbPath }}
+          </n-text>
+        </template>
       </aside>
       <main class="main-content">
         <!-- Skeleton while db loads -->
@@ -137,7 +145,9 @@ onMounted(initDb);
   border-right: 1px solid #e0e0e0;
   padding: 12px;
   flex-shrink: 0;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .main-content {

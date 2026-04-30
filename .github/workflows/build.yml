@@ -35,11 +35,8 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: PriceDB v__VERSION__
-          releaseBody: |
-            ## 下载
-            - **PriceDB.zip** — 绿色版，解压即运行
-            - **PriceDB_x64-setup.exe** — NSIS 安装包
-          releaseDraft: true
+          releaseBody: "PriceDB 绿色版，解压即运行。数据库 app.db 自动创建在 exe 同目录。"
+          releaseDraft: false
           prerelease: false
 
       - name: Create portable zip
@@ -47,10 +44,15 @@ jobs:
         run: |
           Compress-Archive -Path src-tauri/target/release/price-db.exe -DestinationPath PriceDB.zip
 
-      - name: Upload portable zip to release
+      - name: Upload portable zip and remove installer
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           VERSION=$(node -p "require('./src-tauri/tauri.conf.json').version")
-          gh release upload "v${VERSION}" PriceDB.zip --clobber
+          TAG="v${VERSION}"
+          gh release upload "$TAG" PriceDB.zip --clobber
+          # Remove installer assets, keep only portable zip
+          for asset in $(gh release view "$TAG" --json assets -q '.assets[].name' | grep -v 'PriceDB.zip'); do
+            gh release delete-asset "$TAG" "$asset" -y || true
+          done
