@@ -1,0 +1,21 @@
+[package]
+name = "price-db"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "price_db_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+calamine = "0.26"
+rust_xlsxwriter = "0.64"
+chrono = "0.4"
