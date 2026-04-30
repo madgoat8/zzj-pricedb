@@ -52,7 +52,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          if [ -n "$tag" ]; then
-            gh release upload "$tag" PriceDB.zip --clobber
-          fi
+          VERSION=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          gh release upload "v${VERSION}" PriceDB.zip --clobber
